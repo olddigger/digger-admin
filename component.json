@@ -5,7 +5,8 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "diggerio/digger-editor":"*"
+    "diggerio/digger-editor":"*",
+    "binocarlos/file-uploader":"*"
   },
   "development": {},
   "license": "MIT",
