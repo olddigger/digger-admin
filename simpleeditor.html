@@ -1,0 +1,73 @@
+<div>
+  <div style="margin:10px 0 0 0;" >
+  <h4 ng-show="showform || showdelete || showfolderform">{{ edit_container.title() | ucfirst }}</h4>
+  </div>
+  <div ng-show="showadd && !showform"  class="pull-left">
+    <button class="btn btn-primary" ng-click="addclicked()">Add</button>
+  </div>
+  <div ng-show="folder_mode && showadd && !showform" class="pull-left" style="margin-left:10px">
+    <button class="btn btn-primary" ng-click="addfolderclicked()">Add Folder</button>
+  </div>
+  <div ng-show="folder_mode && showadd && !showform" class="pull-left" style="margin-left:10px">
+    <button class="btn btn-primary" ng-click="editfolderclicked()">Edit Folder</button>
+  </div>
+
+
+  <!--
+    delete
+   -->
+  <div ng-show="showdelete">  
+
+    <div class="well">
+      Are you sure you want to delete {{ edit_container.title() }}?
+    </div>
+
+    <button class="btn" ng-click="cancelform()">No - Cancel</button>
+    <button class="btn btn-danger" ng-click="confirmdelete()">Yes - Delete</button>
+  </div>
+
+  <!--
+    form
+   -->
+  <div ng-show="showform">
+
+      <fieldset>
+
+
+        <!--
+          THIS IS TRANSCLUDED SO YOU CAN PASS ANY FORM
+         -->
+        <div class="well" ng-transclude>
+          
+        </div>
+
+        
+        
+        <button class="btn" ng-click="cancelform()">Cancel</button>
+        <button class="btn btn-warning" ng-show="formactiontitle=='Save'" ng-click="deleterow(edit_container)">Delete</button>
+        <button class="btn btn-success" ng-click="submitform()">{{ formactiontitle }} {{ edit_container.title() | ucfirst }}</button>
+        
+      </fieldset>
+
+  </div>
+
+  <div ng-show="showfolderform">
+
+    <form novalidate class="form form-horizontal" name="diggerForm" onSubmit="return false;">
+
+      <fieldset>
+
+
+        <div class="well">
+          <digger-form fields="folderblueprint.fields" container="edit_folder" fieldclass="input-xlarge" />
+        </div>
+
+        <button class="btn" ng-click="cancelfolderform()">Cancel</button>
+        <button class="btn btn-success" ng-click="submitfolderform()">{{ formactiontitle }} Folder</button>
+        
+      </fieldset>
+
+    </form>
+
+  </div>
+</div>

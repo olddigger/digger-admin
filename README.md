@@ -1,4 +1,10 @@
 digger-admin
 ============
 
-Generic admin panel for digger warehouses
+Angular directives for digger apps
+
+## installation
+
+```
+$ component install diggerio/digger-admin
+```

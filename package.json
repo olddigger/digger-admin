@@ -1,0 +1,23 @@
+{
+  "name": "digger-admin",
+  "version": "0.0.1",
+  "description": "Generic admin panel for digger warehouses",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/diggerio/digger-admin.git"
+  },
+  "keywords": [
+    "digger",
+    "admin"
+  ],
+  "author": "Kai Davenport",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/diggerio/digger-admin/issues"
+  },
+  "homepage": "https://github.com/diggerio/digger-admin"
+}

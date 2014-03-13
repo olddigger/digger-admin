@@ -1,0 +1,26 @@
+{
+  "name": "digger-admin",
+  "repo": "diggerio/digger-admin",
+  "description": "Angular directives for digger apps",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "diggerio/digger-editor":"*"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  
+  "styles": [
+    
+  ],
+  
+  "scripts": [
+    "index.js",
+    "settingsfolders.js",
+    "simpleditor.js",
+    "simpletable.js",
+    "crudeditor.js",
+    "crud.js"
+  ]
+}

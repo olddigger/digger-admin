@@ -1,0 +1,46 @@
+<div>
+
+  
+        <table class="table table-hover">
+          <tbody>
+            <tr 
+              class="hand" 
+              ng-repeat="row in rows | searchContainers:search" 
+              ng-class="{success:selected.diggerid()==row.diggerid()}" 
+              ng-click="selectrow({container:row})">
+
+              <td>
+                <a id="{{ row.diggerid() }}"></a>
+                <div class="row">
+                  <div ng-class="{'col-sm-5':showsummary, 'col-sm-12':!showsummary}">
+                    <h5>{{ row.title() }}</h5>
+                  </div>
+                  <div ng-if="showsummary" class="col-sm-7" style="margin-top:10px;">
+                    <resource-summary container="row" settings="summary_settings" />
+                  </div>
+                </div>
+                
+              </td>
+
+              <td width=1>
+                
+                <table><tr><td style="border-color:none;border-top:none;">
+                <button class="btn btn-mini pull-right" ng-class="{'btn-success':row.is('folder'),'btn-info':!row.is('folder')}" style="margin-right:10px;">
+                    <i title="Edit" ng-class="{'fa-folder-open':row.is('folder'),'fa-edit':!row.is('folder')}" class="icon-white fa"></i>
+                </button>
+                </td><td style="border-color:none;border-top:none;">
+                <button class="btn  btn-mini pull-right" style="margin-right:10px;" ng-click="deleterow({container:row}); $event.stopPropagation()">
+                    <i title="Delete" class="fa fa-trash-o icon-white"></i>  
+                </button>
+                </td></tr></table>
+           
+              </td>                                       
+            </tr>
+          </tbody>
+        </table>
+
+        
+        <!--<pagination rows="rows" num-pages="noOfPages" current-page="currentPage" class="pagination-small"></pagination>-->
+
+ 
+</div>
