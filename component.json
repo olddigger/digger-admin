@@ -20,7 +20,6 @@
     "index.js",
     "simpleeditor.js",
     "simpletable.js",
-    "crudeditor.js",
-    "crud.js"
+    "crudeditor.js"
   ]
 }

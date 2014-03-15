@@ -4,7 +4,7 @@
     <div class="col-sm-3" style="font-size:1.1em;">
       
       <div id="treeholder" class="hidden-print affix-top">
-        <digger-tree title="title" filter="folder" iconfn="iconfn" container="tree_root" depth="10" />
+        <digger-tree title="title" filter="folder" iconfn="settings.iconfn" container="tree_root" depth="10" />
       </div>
 
     </div>
@@ -12,55 +12,41 @@
 
     <div class="col-sm-9" style="margin-top:10px;">
 
-      <div class="row" ng-hide="editing">
-        <div class="col-sm-6">
-
-
-              <input type="text" name="search" class="form-control col-sm-4" id="searchField" ng-model="itemsearch" placeholder="filter">
-            
-            
-            
-          </form>
+      <div class="row" ng-if="mode=='overview'">
+        <div class="col-sm-7">
+          <div style="font-size:2em;">{{ edit_container.models[0].title || edit_container.models[0].name }}</div>
+        </div>
+        <div class="col-sm-3">
+          <input type="text" name="query" class="form-control" id="queryfield" ng-model="selector.search" placeholder="search">
+        </div>
+        <div class="col-sm-2">
+          <input type="text" name="limit" class="form-control" id="limitfield" ng-model="selector.limit" placeholder="limit">
+        </div>
+      </div>      
+      <div class="row" style="margin-top:10px;">
+        <div class="col-sm-12">
+          <simple-editor settings="settings" container="edit_container">
+          </simple-editor>
         </div>
 
       </div>
 
-      <div class="row">
-        <form novalidate name="containerform">
-
-          <simple-editor settings="settings" container="container" blueprint="blueprint">
-          </simple-editor>        
-
-
-        </form>
-
-      </div>
-
-      <div class="row" ng-show="(!editing && folders.length>0)" style="margin-top:20px;">
+      <div class="row" ng-if="mode=='overview'" ng-show="(!editing && folders.length>0)" style="margin-top:20px;">
         
 
         <simple-table 
-          selected="edit_container" 
           rows="folders" 
-          title="Folders" 
-          selectrow="editrow(container)" 
-          deleterow="deleterow(container)" />
+          search="search" 
+          iconfn="settings.iconfn" />
 
       </div>
 
-      <div class="row" ng-show="(!editing && items.length>0)" style="margin-top:20px;">
+      <div class="row" ng-if="mode=='overview'" ng-show="(!editing && items.length>0)" style="margin-top:20px;">
       
-        <!--
-          LIST OF FOLDERS
-         -->
         <simple-table 
-          showsummary="yes" 
-          selected="edit_container" 
           rows="items" 
-          search="itemsearch" 
-          selectrow="editrow(container)" 
-          deleterow="deleterow(container)">            
-        </simple-table>
+          search="search" 
+          iconfn="settings.iconfn" />
 
       </div>
 

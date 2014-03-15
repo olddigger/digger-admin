@@ -4,19 +4,26 @@
         <table class="table table-hover">
           <tbody>
             <tr 
-              class="hand" 
-              ng-repeat="row in rows | searchContainers:search" 
-              ng-class="{success:selected.diggerid()==row.diggerid()}" 
+              style="cursor:pointer;" 
+              ng-repeat="row in rows | searchContainers:search | namesort" 
+              ng-class="{success:selected.models[0]._digger.diggerid==row.models[0]._digger.diggerid}" 
               ng-click="selectrow({container:row})">
 
               <td>
-                <a id="{{ row.diggerid() }}"></a>
+                <a id="{{ row.models[0]._digger.diggerid }}"></a>
                 <div class="row">
-                  <div ng-class="{'col-sm-5':showsummary, 'col-sm-12':!showsummary}">
-                    <h5>{{ row.title() }}</h5>
+                  <div class="col-sm-6">
+                    <a href="" style="text-decoration:none;">
+                      <resource-icon container="row" settings="summary_settings">
+                        <i style="font-size:1.2em;" title="{{ row | diggername }}" ng-class="iconfn(row)" class="fa"></i>
+                      </resource-icon>
+                      <big>{{ row | diggername }}</big>
+                    </a>
                   </div>
-                  <div ng-if="showsummary" class="col-sm-7" style="margin-top:10px;">
-                    <resource-summary container="row" settings="summary_settings" />
+                  <div class="col-sm-6">
+                    <resource-summary container="row" settings="summary_settings">
+                      <small style="font-size:0.8em;color:#999;">{{ row | diggersummary }}</small>
+                    </resource-summary>
                   </div>
                 </div>
                 
@@ -25,8 +32,8 @@
               <td width=1>
                 
                 <table><tr><td style="border-color:none;border-top:none;">
-                <button class="btn btn-mini pull-right" ng-class="{'btn-success':row.is('folder'),'btn-info':!row.is('folder')}" style="margin-right:10px;">
-                    <i title="Edit" ng-class="{'fa-folder-open':row.is('folder'),'fa-edit':!row.is('folder')}" class="icon-white fa"></i>
+                <button class="btn btn-mini pull-right" ng-class="{'btn-success':row.models[0]._digger.tag=='folder','btn-info':row.models[0]._digger.tag!='folder'}" style="margin-right:10px;">
+                    <i title="Edit" ng-class="iconfn(row)" class="icon-white fa"></i>
                 </button>
                 </td><td style="border-color:none;border-top:none;">
                 <button class="btn  btn-mini pull-right" style="margin-right:10px;" ng-click="deleterow({container:row}); $event.stopPropagation()">

@@ -1,14 +1,15 @@
 <div>
-  <div style="margin:10px 0 0 0;" >
-    <h4 ng-show="showform || showdelete || showfolderform">{{ edit_container.models[0].name | ucfirst }}</h4>
-  </div>
-
+  
   <div ng-show="showadd && !showform"  class="pull-left">
-    <button class="btn btn-primary" ng-click="addclicked()">Add {{ blueprintname }}</button>
+    <button ng-repeat="addname in add" class="btn btn-info" style="margin-right:10px" ng-click="addclicked(addname)">Add {{ addname | ucfirst }}</button>
   </div>
   
-  <div ng-show="folder_mode && showadd && !showform" class="pull-left" style="margin-left:10px">
-    <button class="btn btn-primary" ng-click="editfolderclicked()">Edit {{ itemtype }}</button>
+  <div ng-show="edit_mode && showadd && !showform" class="pull-left">
+    <button class="btn btn-primary" ng-click="editrow(container)" style="margin-right:10px">Edit {{ (container.models[0].name || blueprintname) | ucfirst }}</button>
+  </div>
+
+  <div ng-show="edit_mode && showadd && !showform" class="pull-left">
+    <button class="btn btn-warning" ng-click="deleterow(container)" style="margin-right:10px">Delete {{ (container.models[0].name || blueprintname) | ucfirst }}</button>
   </div>
 
 
