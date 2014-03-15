@@ -1,82 +1,73 @@
-
-  <div class="settings" ng-cloak >
-
-
-    
-    <div class="row">
-    
-
-
-      <div class="col-sm-3" style="font-size:1.1em;">
-        
-        <div id="treeholder" class="hidden-print affix-top">
-          <digger-tree title="treetitle" filter="folder" iconfn="iconfn" container="resources_root" depth="10" />
-        </div>
-
+<div class="settings" ng-cloak>
+  <div class="row">
+  
+    <div class="col-sm-3" style="font-size:1.1em;">
+      
+      <div id="treeholder" class="hidden-print affix-top">
+        <digger-tree title="title" filter="folder" iconfn="iconfn" container="tree_root" depth="10" />
       </div>
 
-
-      <div class="col-sm-9" style="margin-top:10px;">
-
-        <div class="row" ng-hide="editing">
-          <div class="col-sm-6">
+    </div>
 
 
-                <input type="text" name="search" class="form-control col-sm-4" id="searchField" ng-model="itemsearch" placeholder="filter">
-              
-              
-              
-            </form>
-          </div>
+    <div class="col-sm-9" style="margin-top:10px;">
 
-        </div>
-
-        <div class="row">
-          <form novalidate name="containerform">
-
-            <simple-editor>
-              
-                <digger-form fields="blueprint.fields" container="edit_container" fieldclass="input-xlarge" />
-              
-            </simple-editor>        
+      <div class="row" ng-hide="editing">
+        <div class="col-sm-6">
 
 
+              <input type="text" name="search" class="form-control col-sm-4" id="searchField" ng-model="itemsearch" placeholder="filter">
+            
+            
+            
           </form>
-
         </div>
-
-        <div class="row" ng-show="(!editing && folders.length>0)" style="margin-top:20px;">
-          
-
-          <simple-table 
-            selected="edit_container" 
-            rows="folders" 
-            title="Folders" 
-            selectrow="editrow(container)" 
-            deleterow="deleterow(container)" />
-
-        </div>
-
-        <div class="row" ng-show="(!editing && items.length>0)" style="margin-top:20px;">
-        
-          <!--
-            LIST OF FOLDERS
-           -->
-          <simple-table 
-            showsummary="yes" 
-            selected="edit_container" 
-            rows="items" 
-            search="itemsearch" 
-            selectrow="editrow(container)" 
-            deleterow="deleterow(container)">            
-          </simple-table>
-
-        </div>
-
 
       </div>
 
+      <div class="row">
+        <form novalidate name="containerform">
+
+          <simple-editor settings="settings" container="container" blueprint="blueprint">
+          </simple-editor>        
+
+
+        </form>
+
+      </div>
+
+      <div class="row" ng-show="(!editing && folders.length>0)" style="margin-top:20px;">
+        
+
+        <simple-table 
+          selected="edit_container" 
+          rows="folders" 
+          title="Folders" 
+          selectrow="editrow(container)" 
+          deleterow="deleterow(container)" />
+
+      </div>
+
+      <div class="row" ng-show="(!editing && items.length>0)" style="margin-top:20px;">
+      
+        <!--
+          LIST OF FOLDERS
+         -->
+        <simple-table 
+          showsummary="yes" 
+          selected="edit_container" 
+          rows="items" 
+          search="itemsearch" 
+          selectrow="editrow(container)" 
+          deleterow="deleterow(container)">            
+        </simple-table>
+
+      </div>
 
 
     </div>
+
+
+
   </div>
+</div>

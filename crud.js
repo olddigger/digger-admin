@@ -5,11 +5,30 @@ angular
     
   ])
 
-  /*
-  
-    the controller we use a lot inside a factory
-    
-  */
+  .factory('$pathSelector', function() {
+
+    return function(path, child_selector){
+
+      var path_parts = (path || '').split('/');
+      var selectors = [];
+
+      if(path_parts.length>0){
+        selectors = selectors.concat(path_parts.filter(function(id){
+          return id && id.match(/\w/);
+        }).map(function(id){
+          return 'folder#' + id;
+        }))
+      }
+
+      if(child_selector){
+        selectors.push(child_selector + ':sort(name)');  
+      }
+
+      var ret = selectors.join(' > ');
+      return ret;
+    }
+
+  })
 
   .factory('$crudController', function($safeApply, $location, $anchorScroll) {
     return function($scope, options){
@@ -20,123 +39,12 @@ angular
       
       $scope.add_mode = options.add_mode;
 
-      // if we are using the path (/folder/folder/folder)
-      // then auto generate the selectors
-      function get_path_selector(withcontents){
-
-        if(!options.selector_base){
-          return null;
-        }
-
-        var path_parts = (options.selector_path || '').split('/');
-
-        var selectors = [options.selector_base];
-
-        if(path_parts.length>0){
-          selectors = selectors.concat(path_parts.filter(function(id){
-            return id && id.match(/\w/);
-          }).map(function(id){
-            return 'folder#' + id;
-          }))  
-        }
-
-        if(withcontents){
-          selectors.push('*:sort(name)');  
-        }
-
-        var ret = selectors.join(' > ');
-        return ret;
-      }
-
       $scope.$on('crud:reload', function(){
         load_containers();
       })
 
 
-      function load_containers(){
-
-        load_parent(function(){
-          var selector = '';
-
-          if(options.selector_base){
-            selector = get_path_selector(true);
-          }
-          else{
-            selector = options.selector;
-          }
-
-          if(typeof(selector)==='function'){
-            selector = selector();
-          }
-
-          if($digger.config.debug){
-            console.log('loading children: ' + selector);  
-          }
-
-          $scope
-            .warehouse(selector)
-            .ship(function(results){
-              $safeApply($scope, function(){
-                $scope.results = results;
-                $scope.containers = results.containers();
-                $scope.$emit('results', results);
-              })
-            })  
-        });
-
-      }
-
-      function load_parent(done){
-        // 'folder#clients > *:sort(name)'
-        
-        var selector = '';
-
-        if(options.selector_base){
-          selector = get_path_selector();
-        }
-        else{
-          selector = options.selector;
-        }
-
-        if(typeof(selector)==='function'){
-          selector = selector();
-        }
-
-        if($digger.config.debug){
-          console.log('loading parent: ' + selector);  
-        }
-
-        var contract = $scope
-          .warehouse(selector)
-          .ship(function(results){
-
-            $safeApply($scope, function(){
-
-              $scope.parent = results;
-              $scope.$emit('parent', results);
-              done && done();
-            })
-            
-          })
-      }
-
-      function get_blueprint_name(){
-        var blueprint = options.blueprint || 'folder';
-
-        if(typeof(blueprint)==='function'){
-          blueprint = blueprint();
-        }
-
-        return blueprint;
-      }
-
-      function get_blueprint(){
-        return $digger.blueprint.get(get_blueprint_name());
-      }
-
-      $scope.showadd = $scope.add_mode;
-      $scope.showform = false;
-      $scope.showdelete = false;
+      
 
       load_containers();
 
