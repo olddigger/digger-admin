@@ -6,6 +6,12 @@
     </button>
   </div>
 
+  <div ng-show="mode=='overview' && parent" class="pull-left">
+    <button ng-class="buttonclass" class="btn" ng-click="goup()" style="margin-right:10px">
+      <i class="fa fa-angle-up"></i>  Up
+    </button>
+  </div>
+
   <div ng-show="mode=='overview' && addblueprints.length>0" class="pull-left" style="margin-right:10px;">
 
     <div class="btn-group">
@@ -25,14 +31,14 @@
   </div>
 
   <div ng-show="edit_mode && mode=='overview'" class="pull-left">
-    <button ng-class="buttonclass" class="btn btn-warning" ng-click="deleterow(container)" style="margin-right:10px">
+    <button ng-class="buttonclass" class="btn" ng-click="deleterow(container)" style="margin-right:10px">
       <i class="fa fa-trash-o"></i> Delete {{ (container.models[0].name || blueprintname) }}
     </button>
   </div>
 
 
   <div ng-show="edit_mode && mode=='edit' && formactiontitle=='Save'" class="pull-left">
-    <button ng-class="buttonclass" class="btn btn-warning" ng-click="deleterow(edit_container)" style="margin-right:10px">
+    <button ng-class="buttonclass" class="btn" ng-click="deleterow(edit_container)" style="margin-right:10px">
       <i class="fa fa-trash-o"></i>  Delete
     </button>
   </div>

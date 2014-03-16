@@ -4,5 +4,6 @@ templates:
 	component convert crudeditor.html
 	component convert pagination.html
 	component convert buttonrow.html
+	component convert fields/file.html
 
 .PHONY: templates

@@ -1,0 +1,1 @@
+module.exports = '<div>\n	<file-uploader url="/filestore" />\n</div>';

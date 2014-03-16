@@ -22,6 +22,7 @@
     "simpletable.js",
     "crudeditor.js",
     "pagination.js",
-    "buttonrow.js"
+    "buttonrow.js",
+    "fields/file.js"
   ]
 }

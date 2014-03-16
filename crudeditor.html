@@ -38,7 +38,7 @@
 
       </div>
 
-      <div class="row" ng-if="mode=='overview'" ng-show="(!editing && folders.length>0)" style="margin-top:20px;">
+      <div class="row" ng-if="mode=='overview' && !deleting && !editing && folders.length>0">
         
 
         <simple-table 
@@ -48,7 +48,7 @@
 
       </div>
 
-      <div class="row" ng-if="mode=='overview'" ng-show="(!editing && items.length>0)" style="margin-top:20px;">
+      <div class="row" ng-if="mode=='overview' && !deleting && !editing && items.length>0">
       
         <simple-table 
           rows="items" 

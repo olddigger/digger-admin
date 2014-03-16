@@ -8,11 +8,23 @@ var templates = {
   buttonrow:require('./buttonrow')
 }
 
+var fields = {
+  file:require('./fields/file')
+}
+
 angular
   .module(modulename, [
     require('digger-editor'),
     require('file-uploader')
   ])
+
+  .run(function(){
+
+    Object.keys(fields || {}).forEach(function(key){
+      $digger.blueprint.add_template(key, fields[key]);
+    })
+
+  })
 
   .factory('$pathSelector', function() {
 
@@ -44,6 +56,7 @@ angular
       controller:function($scope){
 
         $scope.showform = false;
+        $scope.deleting = false;
 
         $scope.selector = {
           limit:'',
@@ -62,6 +75,8 @@ angular
 
         $scope.load_children = function(){
 
+          $scope.folders = [];
+          $scope.items = [];
           var limit = $scope.selector.limit || '0,100';
 
           $scope.edit_container(selector + ':limit(' + limit + ')').ship(function(children){
@@ -93,6 +108,18 @@ angular
         $scope.select_container = function(container){
           $scope.edit_container = container;
           $scope.run_selector();
+          var parent = $scope.get_parent(container);
+
+          if(parent.count()<=0){
+            if(container.diggerid()!=$scope.tree_root.diggerid()){
+              parent = $scope.tree_root;
+            }
+          }
+          $scope.$broadcast('admin:parent', parent);
+
+          
+
+          
         }
 
         $scope.load_tree = function(selectcontainer){
@@ -107,6 +134,16 @@ angular
           $scope.select_container(selectcontainer || $scope.tree_root);
         }
 
+
+        $scope.get_parent = function(container){
+          var parent = $scope.tree_root.find('=' + container.diggerparentid());
+          if(!parent){
+            parent = $scope.tree_root;
+          }
+          return parent;
+        }
+
+
         // load the tree data
         $scope.$watch('container', function(container){
           if(!container){
@@ -114,12 +151,12 @@ angular
           }
           $scope.tree_root = container;
           $scope.load_tree(container);
-          
         })
 
 
         $scope.$on('tree:selected', function($e, container){
-          $scope.select_container(container);          
+          $scope.select_container(container);
+          $scope.$broadcast('admin:reset', container);       
         })
 
         $scope.$on('table:edit', function($ev, container){
@@ -151,10 +188,7 @@ angular
         })
 
         $scope.$on('admin:confirmdelete', function($ev, container){
-          var parent = $scope.tree_root.find('=' + container.diggerparentid());
-          if(!parent){
-            parent = $scope.tree_root;
-          }
+          var parent = $scope.get_parent(container);
           $scope.load_tree(parent);
         })
 
@@ -171,8 +205,23 @@ angular
 
         })
 
+        $scope.$on('admin:up', function($ev, container){
+          if(!container){
+            return;
+          }
+          if(container.is('folder') || container.is('_supplychain')){
+            $scope.$broadcast('tree:select', container);
+            $scope.$broadcast('tree:expand', container);  
+          }
+          $scope.select_container(container);
+        })
+
         $scope.$on('editor:save', function(){
           $scope.load_children();
+        })
+
+        $scope.$on('admin:deleteflag', function($ev, mode){
+          $scope.deleting = mode;
         })
 
     
@@ -271,6 +320,16 @@ angular
           $scope.updatecontainer();
         })
 
+        $scope.$on('admin:parent', function($ev, parent){
+          $scope.hitparent = parent;
+          $scope.parent = parent && parent.count()>0;
+        })
+
+        
+
+        $scope.$on('admin:reset', function($ev, container){
+          $scope.cancelform();
+        })
 
         $scope.$on('admin:edit', function($ev, container){
           $safeApply($scope, function(){
@@ -286,11 +345,22 @@ angular
           
         })
         $scope.updatecontainer = function(){
+
           $scope.itemtype = $scope.container.tag();
           $scope.edit_mode = $scope.container.tag()!='_supplychain';
           $scope.addblueprints = $scope.settings.blueprintfn ? $scope.settings.blueprintfn($scope.container) : [$digger.blueprint.get('folder')];
           $scope.edit_container = $scope.container;
           $scope.$emit('editor:update', $scope.container);
+
+          var blueprint = $digger.blueprint.for_container($scope.container);
+
+          if(blueprint && blueprint.attr('leaf')){
+            $scope.leaf = true;
+            $scope.editrow($scope.container);
+          }
+          else{
+            $scope.leaf = false;
+          }
         }
 
         $scope.addclicked = function(blueprint){
@@ -298,6 +368,12 @@ angular
           $scope.edit_container = $digger.blueprint.create(blueprint);
           $scope.edit_mode = true;
           $scope.blueprint = blueprint;
+
+          $scope.edit_container.diggerwarehouse($scope.container.diggerwarehouse());
+
+          console.log('-------------------------------------------');
+          console.log('-------------------------------------------');
+          console.dir($scope.edit_container.toJSON());
           
           $scope.formtitle = 'New ' + ($scope.blueprintname.replace(/^./, function(st){
             return (st || '').toUpperCase();
@@ -326,23 +402,32 @@ angular
           $scope.clickmode = 'edit';
         }
 
+        $scope.goup = function(){
+          $scope.$emit('admin:up', $scope.hitparent);
+        }
+
 
         $scope.cancelform = function(){
+          
           $scope.formactiontitle = 'Add';
           if($scope.canceldata){
             $scope.edit_container.models = $scope.canceldata;  
           }
+          $scope.edit_mode = $scope.container.tag()!='_supplychain';
           $scope.canceldata = null;
           $scope.edit_container = null;
           $scope.$emit('admin:cancel');
           $scope.$emit('admin:form', false);
           $scope.mode = 'overview';
+          if($scope.leaf){
+            $scope.$emit('admin:up', $scope.hitparent);
+          }
         }
 
         $scope.deleterow = function(row, event){
           $scope.formtitle = 'Delete?';
           //$scope.edit_container = row;
-          //$scope.$emit('admin:delete');
+          $scope.$emit('admin:deleteflag', true);
           //$scope.$emit('admin:form', true);
           $scope.mode = 'delete';
         }
@@ -350,6 +435,7 @@ angular
         $scope.confirmdelete = function(mode){
           if(!mode){
             $scope.mode = 'overview';
+            $scope.$emit('admin:deleteflag', false);
             $scope.$emit('admin:form', false);
           }
           else{
@@ -361,6 +447,7 @@ angular
                 $growl(title + " removed");
                 $scope.$emit('admin:confirmdelete', removing);
                 $scope.mode = 'overview';
+                $scope.$emit('admin:deleteflag', false);
                 $scope.$emit('admin:form', false);
               })
               
