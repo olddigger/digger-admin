@@ -7,7 +7,7 @@
               style="cursor:pointer;" 
               ng-repeat="row in rows | searchContainers:search | namesort" 
               ng-class="{success:selected.models[0]._digger.diggerid==row.models[0]._digger.diggerid}" 
-              ng-click="selectrow({container:row})">
+              ng-click="editrow(row)">
 
               <td>
                 <a id="{{ row.models[0]._digger.diggerid }}"></a>
@@ -32,11 +32,11 @@
               <td width=1>
                 
                 <table><tr><td style="border-color:none;border-top:none;">
-                <button class="btn btn-mini pull-right" ng-class="{'btn-success':row.models[0]._digger.tag=='folder','btn-info':row.models[0]._digger.tag!='folder'}" style="margin-right:10px;">
+                <button class="btn btn-sm pull-right" ng-class="{'btn-success':row.models[0]._digger.tag=='folder','btn-info':row.models[0]._digger.tag!='folder'}" style="margin-right:10px;">
                     <i title="Edit" ng-class="iconfn(row)" class="icon-white fa"></i>
                 </button>
                 </td><td style="border-color:none;border-top:none;">
-                <button class="btn  btn-mini pull-right" style="margin-right:10px;" ng-click="deleterow({container:row}); $event.stopPropagation()">
+                <button class="btn btn-warning btn-sm pull-right" style="margin-right:10px;" ng-click="$emit('admin:delete', row); $event.stopPropagation()">
                     <i title="Delete" class="fa fa-trash-o icon-white"></i>  
                 </button>
                 </td></tr></table>

@@ -1,0 +1,7 @@
+<div ng-if="active && pages.length>1">
+  <ul class="pagination" style="margin:0px;margin-top:15px;">
+	  <li><a href="" style="cursor:pointer;" ng-click="selectPrevious()">Previous</a></li>
+	  <li ng-repeat="page in pages" ng-class="{active: $index==activepage}"><a href="" style="cursor:pointer;" ng-click="selectPage($index)">{{$index+1}}</a></li>
+	  <li><a href="" style="cursor:pointer;" ng-click="selectNext()">Next</a></li>
+  </ul>
+</div>

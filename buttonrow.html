@@ -1,0 +1,46 @@
+<div class="row" style="margin-top:10px;">
+
+  <div ng-show="edit_mode && mode=='edit'" class="pull-left">
+    <button ng-class="buttonclass" class="btn" ng-click="cancelform()" style="margin-right:10px">
+      <i class="fa fa-angle-left"></i>  Cancel
+    </button>
+  </div>
+
+  <div ng-show="mode=='overview' && addblueprints.length>0" class="pull-left" style="margin-right:10px;">
+
+    <div class="btn-group">
+      <button ng-class="buttonclass" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+        <i class="fa fa-plus"></i> Add <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li ng-repeat="blueprint in addblueprints"><a ng-click="addclicked(blueprint)" href="" style="cursor:pointer;">{{ blueprint.models[0].name }}</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <div ng-show="edit_mode && mode=='overview'" class="pull-left">
+    <button ng-class="buttonclass" class="btn btn-sm btn-primary" ng-click="editrow(container)" style="margin-right:10px">
+      <i class="fa fa-pencil"></i> Edit {{ (container.models[0].name || blueprintname) }}
+    </button>
+  </div>
+
+  <div ng-show="edit_mode && mode=='overview'" class="pull-left">
+    <button ng-class="buttonclass" class="btn btn-warning" ng-click="deleterow(container)" style="margin-right:10px">
+      <i class="fa fa-trash-o"></i> Delete {{ (container.models[0].name || blueprintname) }}
+    </button>
+  </div>
+
+
+  <div ng-show="edit_mode && mode=='edit' && formactiontitle=='Save'" class="pull-left">
+    <button ng-class="buttonclass" class="btn btn-warning" ng-click="deleterow(edit_container)" style="margin-right:10px">
+      <i class="fa fa-trash-o"></i>  Delete
+    </button>
+  </div>
+
+  <div ng-show="edit_mode && mode=='edit'" class="pull-left">
+    <button ng-class="buttonclass" class="btn btn-success" ng-click="submitform()">
+      <i class="fa fa-chevron-right"></i> {{ formactiontitle }} {{ edit_container | diggername }}
+    </button>
+  </div>
+
+</div>

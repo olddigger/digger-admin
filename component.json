@@ -20,6 +20,8 @@
     "index.js",
     "simpleeditor.js",
     "simpletable.js",
-    "crudeditor.js"
+    "crudeditor.js",
+    "pagination.js",
+    "buttonrow.js"
   ]
 }

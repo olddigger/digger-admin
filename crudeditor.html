@@ -1,29 +1,36 @@
 <div class="settings" ng-cloak>
   <div class="row">
   
-    <div class="col-sm-3" style="font-size:1.1em;">
+    <div class="col-sm-3">
       
-      <div id="treeholder" class="hidden-print affix-top">
-        <digger-tree title="title" filter="folder" iconfn="settings.iconfn" container="tree_root" depth="10" />
-      </div>
+      <tree-holder>
+        <div id="treeholder" class="hidden-print affix-top">
+          <digger-tree title="title" filter="folder" iconfn="settings.iconfn" container="tree_root" depth="10" />
+        </div>
+      </tree-holder>
 
     </div>
 
 
-    <div class="col-sm-9" style="margin-top:10px;">
+    <div class="col-sm-9">
 
-      <div class="row" ng-if="mode=='overview'">
-        <div class="col-sm-7">
-          <div style="font-size:2em;">{{ edit_container.models[0].title || edit_container.models[0].name }}</div>
+      <div class="row">
+        <div class="col-sm-9">
+          <editor-header>
+            <div>{{ edit_container | diggername }}</div>
+          </editor-header>
+          
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-3" ng-if="mode=='overview'">
           <input type="text" name="query" class="form-control" id="queryfield" ng-model="selector.search" placeholder="search">
         </div>
-        <div class="col-sm-2">
-          <input type="text" name="limit" class="form-control" id="limitfield" ng-model="selector.limit" placeholder="limit">
-        </div>
       </div>      
-      <div class="row" style="margin-top:10px;">
+      <div class="row" ng-if="mode=='overview'">
+        <div class="col-sm-12">
+          <pagination count="pagination.count" pagesize="pagination.pagesize" />
+        </div>
+      </div>
+      <div class="row">
         <div class="col-sm-12">
           <simple-editor settings="settings" container="edit_container">
           </simple-editor>
@@ -36,7 +43,7 @@
 
         <simple-table 
           rows="folders" 
-          search="search" 
+          search="selector.search" 
           iconfn="settings.iconfn" />
 
       </div>
@@ -45,7 +52,7 @@
       
         <simple-table 
           rows="items" 
-          search="search" 
+          search="selector.search" 
           iconfn="settings.iconfn" />
 
       </div>

@@ -3,7 +3,9 @@ var modulename = module.exports = 'digger.admin';
 var templates = {
   simpletable:require('./simpletable'),
   simpleeditor:require('./simpleeditor'),
-  crudeditor:require('./crudeditor')
+  crudeditor:require('./crudeditor'),
+  pagination:require('./pagination'),
+  buttonrow:require('./buttonrow')
 }
 
 angular
@@ -44,19 +46,25 @@ angular
         $scope.showform = false;
 
         $scope.selector = {
-          limit:'0,100',
+          limit:'',
           search:''
         }
 
-        $scope.edit_container = $scope.container;
+        $scope.pagination = {
+          count:0,
+          pagesize:100
+        }
+
         $scope.mode = 'overview';
 
         var load_trigger = null;
+        var selector = '> *';
 
-        $scope.run_selector = function(){
-          var selector = '> *' + ($scope.selector.limit ? ':limit(' + $scope.selector.limit + ')' : '');// + ($scope.selector.sort ? ':sort(' + $scope.selector.sort + ')' : '');
-          
-          $scope.edit_container(selector).ship(function(children){
+        $scope.load_children = function(){
+
+          var limit = $scope.selector.limit || '0,100';
+
+          $scope.edit_container(selector + ':limit(' + limit + ')').ship(function(children){
             
             $safeApply($scope, function(){
 
@@ -67,35 +75,107 @@ angular
           })
         }
 
-        $scope.$watch('selector', function(selector){
+        $scope.run_selector = function(){
+
+          if(!$scope.edit_container || $scope.edit_container.models.length<=0){
+            $scope.edit_container = $scope.container;
+          }
+          $scope.edit_container(selector + ':count').ship(function(results){
+            $safeApply($scope, function(){
+              $scope.pagination.count = results.attr('count');
+            })
+          })
+
+          $scope.load_children();
+          
+        }
+
+        $scope.select_container = function(container){
+          $scope.edit_container = container;
           $scope.run_selector();
-        }, true)
+        }
+
+        $scope.load_tree = function(selectcontainer){
+          $scope.tree_root('> *:tree(folder)').ship(function(tree){
+            $safeApply($scope, function(){
+              $scope.tree_root.get(0)._children = tree.models;
+              $scope.$emit('crud:tree:loaded');
+              $scope.$broadcast('tree:select', selectcontainer);
+              $scope.$broadcast('tree:expand', selectcontainer);
+            })
+          })
+          $scope.select_container(selectcontainer || $scope.tree_root);
+        }
 
         // load the tree data
         $scope.$watch('container', function(container){
           if(!container){
             return container;
           }
-          container('> *:tree(folder)').ship(function(tree){
-            $safeApply($scope, function(){
-              container.get(0)._children = tree.models;
-              $scope.tree_root = container;
-              $scope.$emit('crud:tree:loaded');
-            })
-          })
+          $scope.tree_root = container;
+          $scope.load_tree(container);
+          
         })
 
 
         $scope.$on('tree:selected', function($e, container){
+          $scope.select_container(container);          
+        })
+
+        $scope.$on('table:edit', function($ev, container){
+          if(container.is('folder')){
+            $scope.$broadcast('tree:select', container);
+            $scope.$broadcast('tree:expand', container);  
+          }
           
-          $scope.edit_container = container;
-          $scope.run_selector();
+          $scope.select_container(container);
+        })
+
+        $scope.$on('table:delete', function($ev, container){
+          $scope.$broadcast('admin:delete', container);
+        })
+
+        $scope.$watch('selector.limit', function(){
+          $scope.load_children();
+        })
+
+        $scope.$on('pagination:change', function($ev, pagination){
+          $scope.selector.limit = pagination;
+        })
+
+        $scope.$on('admin:form', function($ev, mode){
+          $safeApply($scope, function(){
+            $scope.mode = mode ? 'form' : 'overview';
+          })
           
         })
 
-        $scope.$on('editor:mode', function($ev, mode){
-          $scope.mode = mode;
+        $scope.$on('admin:confirmdelete', function($ev, container){
+          var parent = $scope.tree_root.find('=' + container.diggerparentid());
+          if(!parent){
+            parent = $scope.tree_root;
+          }
+          $scope.load_tree(parent);
         })
+
+        $scope.$on('admin:confirmdelete', function($ev, container){
+          var parent = $scope.tree_root.find('=' + container.diggerparentid());
+          if(!parent){
+            parent = $scope.tree_root;
+          }
+          $scope.load_tree(parent);
+        })
+
+        $scope.$on('editor:add', function($ev, container, parent){
+          $scope.load_tree(parent);
+
+        })
+
+        $scope.$on('editor:save', function(){
+          $scope.load_children();
+        })
+
+    
 
       },
       link:function($scope, $elem, $attrs){
@@ -180,15 +260,9 @@ angular
       template:templates.simpleeditor,
       controller:function($scope){
 
+        $scope.mode = 'overview';
         $scope.settings = $scope.settings || {};
         $scope.folderblueprint = $digger.blueprint.get('folder');
-
-        $scope.updatecontainer = function(){
-          $scope.itemtype = $scope.container.tag();
-          $scope.edit_mode = $scope.container.tag()!='_supplychain';
-          $scope.addbuttons = $scope.settings.blueprintfn ? $scope.settings.blueprintfn($scope.container) : ['folder'];
-          $scope.$emit('editor:update', $scope.container);
-        }
 
         $scope.$watch('container', function(container){
           if(!container){
@@ -197,89 +271,102 @@ angular
           $scope.updatecontainer();
         })
 
-        $scope.addclicked = function(blueprintname){
-          $scope.blueprintname = blueprintname;
-          $scope.edit_container = $digger.blueprint.create(blueprintname || 'folder');
-          $scope.blueprint = $digger.blueprint.get(blueprintname || 'folder');
 
+        $scope.$on('admin:edit', function($ev, container){
+          $safeApply($scope, function(){
+            $scope.editrow(container);
+          })
+          
+        })
+
+        $scope.$on('admin:delete', function($ev, container){
+          $safeApply($scope, function(){
+            $scope.deleterow(container);
+          })
+          
+        })
+        $scope.updatecontainer = function(){
+          $scope.itemtype = $scope.container.tag();
+          $scope.edit_mode = $scope.container.tag()!='_supplychain';
+          $scope.addblueprints = $scope.settings.blueprintfn ? $scope.settings.blueprintfn($scope.container) : [$digger.blueprint.get('folder')];
+          $scope.edit_container = $scope.container;
+          $scope.$emit('editor:update', $scope.container);
+        }
+
+        $scope.addclicked = function(blueprint){
+          $scope.blueprintname = blueprint.title();
+          $scope.edit_container = $digger.blueprint.create(blueprint);
+          $scope.edit_mode = true;
+          $scope.blueprint = blueprint;
+          
           $scope.formtitle = 'New ' + ($scope.blueprintname.replace(/^./, function(st){
             return (st || '').toUpperCase();
           }));
 
           $scope.formactiontitle = 'Add';
-          $scope.showform = true;
-          $scope.addingmode = true;
-          $scope.editing = true;
 
-          $scope.$emit('editor:new', $scope.edit_container);
-          $scope.$emit('editing');
+          $scope.$emit('admin:new', $scope.edit_container);
+          $scope.$emit('admin:form', true);
+          $scope.mode = 'edit';
+          $scope.clickmode = 'add';
         }
         
         $scope.editrow = function(row){
-          $scope.clickmode = 'edit';
-          $scope.showadd = false;
-          $scope.showdelete = false;
 
           $scope.formtitle = row.title();
           $scope.formactiontitle = 'Save';
           $scope.edit_container = row;
-          $scope.showform = true;
-          $scope.addingmode = false;
-          $scope.editing = true;
-
+          $scope.blueprint = $digger.blueprint.for_container(row);
+          
           $scope.canceldata = JSON.parse(JSON.stringify(row.models))
 
-          $scope.$emit('editor:select', row);
-          $scope.$emit('editing');
+          $scope.$emit('admin:select', row);
+          $scope.$emit('admin:form', true);
+          $scope.mode = 'edit';
+          $scope.clickmode = 'edit';
         }
 
-        $scope.deleterow = function(row, event){
-          $scope.formtitle = 'Delete?';
-          $scope.edit_container = row;
-        }
 
         $scope.cancelform = function(){
           $scope.formactiontitle = 'Add';
-          $scope.showform = false;
-          $scope.addingmode = false;
-          $scope.showfolderform = false;
-          $scope.showdelete = false;
-          $scope.editing = false;
-          $scope.showadd = $scope.add_mode;
           if($scope.canceldata){
             $scope.edit_container.models = $scope.canceldata;  
           }
           $scope.canceldata = null;
-
-/*
-          if($scope.edit_container){
-            $location.hash($scope.edit_container.diggerid());
-            $anchorScroll();
-          }
-*/
-          
           $scope.edit_container = null;
-          $scope.$emit('notediting');
+          $scope.$emit('admin:cancel');
+          $scope.$emit('admin:form', false);
+          $scope.mode = 'overview';
         }
 
-        $scope.confirmdelete = function(){
-          var title = $scope.edit_container.title();
+        $scope.deleterow = function(row, event){
+          $scope.formtitle = 'Delete?';
+          //$scope.edit_container = row;
+          //$scope.$emit('admin:delete');
+          //$scope.$emit('admin:form', true);
+          $scope.mode = 'delete';
+        }
+
+        $scope.confirmdelete = function(mode){
+          if(!mode){
+            $scope.mode = 'overview';
+            $scope.$emit('admin:form', false);
+          }
+          else{
+            var title = $scope.edit_container.title();
+            var removing = $scope.edit_container;
+            $scope.edit_container = null;
+            removing.remove().ship(function(){
+              $safeApply($scope, function(){
+                $growl(title + " removed");
+                $scope.$emit('admin:confirmdelete', removing);
+                $scope.mode = 'overview';
+                $scope.$emit('admin:form', false);
+              })
+              
+            })
+          }
           
-          $scope.showform = false;
-          $scope.showdelete = false;
-          $scope.editing = false;
-          $scope.showadd = $scope.add_mode;
-
-          var removing = $scope.edit_container;
-
-          $scope.edit_container = null;
-          removing.remove().ship(function(){
-            $growl(title + " removed");
-            $scope.$emit('notediting');
-            $scope.$emit('editor:delete', removing);
-            //load_containers();
-            
-          })
         }    
 
         $scope.submitform = function(){
@@ -289,7 +376,7 @@ angular
             $scope.container.append(newcontainer).ship(function(){
               $growl(newcontainer.title() + " added");
               
-              $scope.$emit('editor:add', newcontainer);
+              
               if($scope.settings.post_append){
                 $scope.settings.post_append(newcontainer);
               }
@@ -297,6 +384,7 @@ angular
                 
                 $safeApply($scope, function(){
                   $scope.cancelform();
+                  $scope.$emit('editor:add', newcontainer, $scope.container);
                 })
               }
               
@@ -308,9 +396,10 @@ angular
             savecontainer.save().ship(function(){
               $growl(savecontainer.title() + " saved");
 
-              $scope.$emit('editor:save', savecontainer);
+              
               $safeApply($scope, function(){
                 $scope.cancelform();
+                $scope.$emit('editor:save', savecontainer);
               })
             })
             
@@ -367,6 +456,100 @@ angular
       link:function($scope, elem, $attrs){
 
         $scope.showsummary = true;
+
+        $scope.editrow = function(container){
+
+          $scope.$emit('table:edit', container);
+
+        }
+
+        $scope.deleterow = function(container){
+
+          $scope.$emit('table:delete', container);
+
+        }
+      }
+    }
+  })
+
+
+
+  .directive('buttonrow', function(){
+
+
+    //field.required && showvalidate && containerForm[field.name].$invalid
+    return {
+      restrict:'EA',
+      scope:true,
+      replace:true,
+      template:templates.buttonrow,
+      link:function($scope, elem, $attrs){
+        $scope.buttonclass = $attrs.buttonclass || 'btn-sm';
+      }
+    }
+  })
+  .directive('pagination', function(){
+
+
+    //field.required && showvalidate && containerForm[field.name].$invalid
+    return {
+      restrict:'EA',
+      scope:{
+        count:'=',
+        pagesize:'='
+      },
+      replace:true,
+      template:templates.pagination,
+      link:function($scope, elem, $attrs){
+
+        $scope.activepage = 0;
+        $scope.active = true;
+        $scope.pages = [];
+
+        $scope.selectPrevious = function(){
+          $scope.activepage--;
+          if($scope.activepage<0){
+            $scope.activepage = 0;
+          }
+        }
+
+        $scope.selectNext = function(){
+          $scope.activepage++;
+          if($scope.activepage>$scope.pages.length-1){
+            $scope.activepage = $scope.pages.length-1;
+          }
+        }
+
+        $scope.selectPage = function(index){
+          $scope.activepage = index;
+        }
+
+        $scope.$watch('activepage', function(activepage){
+          var st = ($scope.activepage * $scope.pagesize) + ',' + $scope.pagesize;
+          $scope.$emit('pagination:change', st);
+        })
+
+        $scope.$watch('count', function(count){
+          
+          if(!count){
+            $scope.active = false;
+            return;
+          }
+          if(!$scope.pagesize){
+            $scope.active = false;
+            return;
+          }
+          $scope.active = true;
+
+          var pages = [];
+          var page_count = Math.ceil(count / $scope.pagesize);
+          
+          for(var i=0; i<page_count; i++){
+            pages.push(i);
+          }
+
+          $scope.pages = pages;
+        })
       }
     }
   })
