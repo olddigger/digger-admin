@@ -12,6 +12,8 @@ var fields = {
   file:require('./fields/file')
 }
 
+var blueprintxml = require('./blueprints.xml.js');
+
 angular
   .module(modulename, [
     require('digger-editor'),
@@ -23,6 +25,9 @@ angular
     Object.keys(fields || {}).forEach(function(key){
       $digger.blueprint.add_template(key, fields[key]);
     })
+
+    var blueprints = $digger.create(blueprintxml);
+    $digger.blueprint.inject(blueprints);
 
   })
 
@@ -254,28 +259,12 @@ angular
     return {
       restrict:'EA',
       scope:{
-        title:'=',
-        warehouse:'=',
-        blueprints:'=',
+        container:'=',
         settings:'='
       },
       replace:true,
-      template:'<div><digger-editor container="container" settings="settings" /></div>)',
+      template:'<div><digger-editor container="container" settings="settings" /></div>',
       controller:function($scope){
-
-      },
-      link:function($scope, $elem, $attrs){
-
-        if($scope.blueprints){
-          $digger.blueprint.load([
-            $scope.blueprints
-          ]);
-        }
-        
-        $scope.container = $digger.connect(options.warehouse);
-        $scope.container.attr('name', options.title);
-
-        $scope.settings = $scope.settings;
 
         $scope.depth = $scope.depth || 4;
         $scope.treedata = [];
@@ -426,7 +415,7 @@ angular
 
         $scope.deleterow = function(row, event){
           $scope.formtitle = 'Delete?';
-          //$scope.edit_container = row;
+          $scope.delete_container = row;
           $scope.$emit('admin:deleteflag', true);
           //$scope.$emit('admin:form', true);
           $scope.mode = 'delete';
@@ -439,8 +428,8 @@ angular
             $scope.$emit('admin:form', false);
           }
           else{
-            var title = $scope.edit_container.title();
-            var removing = $scope.edit_container;
+            var title = $scope.delete_container.title();
+            var removing = $scope.delete_container;
             $scope.edit_container = null;
             removing.remove().ship(function(){
               $safeApply($scope, function(){

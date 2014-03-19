@@ -36,7 +36,7 @@
                     <i title="Edit" ng-class="iconfn(row)" class="icon-white fa"></i>
                 </button>
                 </td><td style="border-color:none;border-top:none;">
-                <button class="btn btn-sm pull-right" style="margin-right:10px;" ng-click="$emit('admin:delete', row); $event.stopPropagation()">
+                <button class="btn btn-sm pull-right" style="margin-right:10px;" ng-click="$emit('table:delete', row); $event.stopPropagation()">
                     <i title="Delete" class="fa fa-trash-o icon-white"></i>  
                 </button>
                 </td></tr></table>

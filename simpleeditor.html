@@ -10,7 +10,7 @@
   <div class="row" ng-show="mode=='delete'">
 
     <div class="well">
-      Are you sure you want to delete {{ edit_container.models[0].name }}?
+      Are you sure you want to delete {{ delete_container | diggername }}?
     </div>
 
     <button class="btn" ng-click="confirmdelete(false)">No - Cancel</button>

@@ -1,0 +1,1 @@
+module.exports = '<folder>\n	<blueprint name="text">\n		<field name="name" />\n		<field name="text" type="textarea" />\n	</blueprint>\n	<blueprint name="image">\n		<field name="name" />\n		<field name="image" type="file" />\n	</blueprint>\n</folder>';

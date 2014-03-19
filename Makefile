@@ -5,5 +5,6 @@ templates:
 	component convert pagination.html
 	component convert buttonrow.html
 	component convert fields/file.html
+	component convert blueprints.xml
 
 .PHONY: templates

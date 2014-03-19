@@ -23,6 +23,7 @@
     "crudeditor.js",
     "pagination.js",
     "buttonrow.js",
-    "fields/file.js"
+    "fields/file.js",
+    "blueprints.xml.js"
   ]
 }
