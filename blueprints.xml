@@ -1,9 +1,9 @@
 <folder>
-	<blueprint name="text">
+	<blueprint name="text" leaf="true">
 		<field name="name" />
 		<field name="text" type="textarea" />
 	</blueprint>
-	<blueprint name="image">
+	<blueprint name="image" leaf="true">
 		<field name="name" />
 		<field name="image" type="file" />
 	</blueprint>
